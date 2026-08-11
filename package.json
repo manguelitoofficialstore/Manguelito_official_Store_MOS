@@ -1,0 +1,9 @@
+{
+  "name": "mos-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MOS Store para GitHub Pages",
+  "scripts": {
+    "serve": "python3 -m http.server 8080"
+  }
+}

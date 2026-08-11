@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0b0b" />
+  <meta name="description" content="MOS Store: Productos oficiales y Colección Basic." />
+  <title>MOS Store</title>
+  <link rel="icon" type="image/png" href="assets/logos/mos-oficial.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="MOS Store - Inicio">
+      <img class="brand-image" src="assets/logos/mos-oficial.png" alt="Logo oficial MOS" />
+      <span class="brand-copy">STORE</span>
+    </a>
+
+    <nav class="top-nav" aria-label="Navegación principal">
+      <a href="#catalogo">Catálogo</a>
+      <button id="cartButton" class="cart-button" type="button" aria-controls="cartDrawer">
+        Carrito <span id="cartCount" class="badge">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" aria-label="MOS Manguelito Official Store">
+      <img class="hero-banner" src="assets/logos/mos-banner.png" alt="MOS Manguelito Official Store" />
+    </section>
+
+    <section id="catalogo" class="catalog-section">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CATÁLOGO</p>
+          <h1>Catálogo MOS</h1>
+        </div>
+        <p id="syncStatus" class="sync-status" role="status">Cargando Productos.xlsx…</p>
+      </div>
+
+      <div id="catalogRoot" class="catalog-root" aria-live="polite"></div>
+      <div id="emptyState" class="empty-state" hidden>No hay productos disponibles.</div>
+    </section>
+  </main>
+
+  <aside id="cartDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-backdrop" data-close-cart></div>
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+      <div class="drawer-header">
+        <div>
+          <p class="eyebrow">PEDIDO</p>
+          <h2 id="cartTitle">Tu carrito</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-cart aria-label="Cerrar carrito">×</button>
+      </div>
+
+      <div id="cartItems" class="cart-items"></div>
+
+      <div class="cart-footer">
+        <div class="cart-total"><span>Total</span><strong id="cartTotal">$0</strong></div>
+        <button id="checkoutButton" class="button button-gold button-full" type="button">Continuar compra</button>
+      </div>
+    </div>
+  </aside>
+
+  <dialog id="productDialog" class="modal modal-product">
+    <div class="modal-card product-modal-card">
+      <button class="modal-close" type="button" data-close-product aria-label="Cerrar">×</button>
+
+      <div class="product-detail-grid">
+        <div class="product-detail-media">
+          <div class="product-detail-image-wrap">
+            <img id="detailImage" class="product-detail-image" alt="" />
+            <div id="detailImageFallback" class="product-image-fallback" hidden></div>
+          </div>
+        </div>
+
+        <div class="product-detail-content">
+          <p class="eyebrow">INFORMACIÓN DEL PRODUCTO</p>
+          <h2 id="detailTitle"></h2>
+          <p id="detailReference" class="detail-reference"></p>
+          <p id="detailPrice" class="detail-price"></p>
+
+          <dl class="detail-specs">
+            <div><dt>Descripción</dt><dd id="detailDescription"></dd></div>
+            <div><dt>Color</dt><dd id="detailColor"></dd></div>
+            <div><dt>Talla</dt><dd id="detailSizeText"></dd></div>
+            <div><dt>Género</dt><dd id="detailGender"></dd></div>
+          </dl>
+
+          <div id="detailStockNotice" class="stock-notice"></div>
+
+          <label class="detail-field">
+            <span>Talla / presentación</span>
+            <select id="detailSizeSelect" required></select>
+          </label>
+
+          <div class="detail-quantity-row">
+            <span class="detail-quantity-label">Cantidad</span>
+            <div class="quantity-stepper">
+              <button id="detailQtyDec" type="button" aria-label="Disminuir cantidad">−</button>
+              <strong id="detailQtyValue">1</strong>
+              <button id="detailQtyInc" type="button" aria-label="Aumentar cantidad">+</button>
+            </div>
+          </div>
+
+          <div class="detail-subtotal-card">
+            <span>Subtotal</span>
+            <strong id="detailSubtotal">$0</strong>
+          </div>
+
+          <p id="detailError" class="form-error" hidden></p>
+
+          <div class="detail-actions">
+            <button class="button button-dark" type="button" data-close-product>Seguir viendo</button>
+            <button id="detailAddButton" class="button button-gold" type="button">Agregar al carrito</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="checkoutDialog" class="modal modal-wide">
+    <form id="checkoutForm" class="modal-card">
+      <button class="modal-close" type="button" data-close-checkout aria-label="Cerrar">×</button>
+      <p class="eyebrow">FINALIZAR PEDIDO</p>
+      <h2>Datos del comprador</h2>
+
+      <div class="form-grid">
+        <label class="field field-wide">
+          <span>Nombre completo</span>
+          <input id="customerName" autocomplete="name" required />
+        </label>
+
+        <label class="field">
+          <span>Número de WhatsApp</span>
+          <input id="customerPhone" inputmode="tel" autocomplete="tel" required />
+        </label>
+
+        <label class="field">
+          <span>Zona de entrega</span>
+          <select id="zoneType" required>
+            <option value="urbana">Urbana</option>
+            <option value="rural">Rural</option>
+          </select>
+        </label>
+
+        <label id="urbanAddressField" class="field field-wide">
+          <span>Dirección</span>
+          <input id="urbanAddress" autocomplete="street-address" required />
+        </label>
+
+        <label id="ruralPlaceField" class="field" hidden>
+          <span>Corregimiento o vereda</span>
+          <input id="ruralPlace" />
+        </label>
+
+        <label id="ruralReferenceField" class="field" hidden>
+          <span>Punto de referencia / indicaciones para llegar</span>
+          <textarea id="ruralReference" rows="4"></textarea>
+        </label>
+
+        <label class="field field-wide">
+          <span>WhatsApp de ventas</span>
+          <select id="salesWhatsapp" required></select>
+        </label>
+
+        <label class="check-field field-wide">
+          <input id="dataConsent" type="checkbox" required />
+          <span>Acepto el tratamiento de mis datos personales para gestionar este pedido.</span>
+        </label>
+      </div>
+
+      <p id="checkoutError" class="form-error" hidden></p>
+
+      <div class="checkout-actions">
+        <button class="button button-dark" type="button" data-close-checkout>Volver</button>
+        <button class="button button-gold" type="submit">Comprar por WhatsApp</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="reportDialog" class="modal modal-wide">
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-close-report aria-label="Cerrar">×</button>
+      <p class="eyebrow">PEDIDO GENERADO</p>
+      <h2 id="reportTitle">Resumen</h2>
+      <pre id="reportText" class="report-text"></pre>
+      <div class="checkout-actions">
+        <button id="copyReportButton" class="button button-dark" type="button">Copiar informe</button>
+        <a id="openWhatsappButton" class="button button-gold" target="_blank" rel="noopener">Abrir WhatsApp</a>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="site-footer">
+    <span>MOS STORE</span>
+    <span>Productos oficiales · MosBasic</span>
+  </footer>
+
+  <noscript>Esta tienda necesita JavaScript para leer Productos.xlsx y gestionar el carrito.</noscript>
+</body>
+</html>
