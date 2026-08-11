@@ -28,6 +28,7 @@
     cartItems: $('cartItems'),
     cartTotal: $('cartTotal'),
     checkoutButton: $('checkoutButton'),
+    emptyCartButton: $('emptyCartButton'),
     productDialog: $('productDialog'),
     detailImage: $('detailImage'),
     detailImageFallback: $('detailImageFallback'),
@@ -523,7 +524,7 @@
               <button type="button" data-dec aria-label="Disminuir">−</button>
               <strong>${line.quantity}</strong>
               <button type="button" data-inc aria-label="Aumentar">+</button>
-              <button type="button" class="remove-line" data-remove>Eliminar</button>
+              <button type="button" class="remove-line" data-remove>Eliminar producto</button>
             </div>
           </div>
           <div class="cart-line-total">${formatCOP(product.price * line.quantity)}</div>`;
@@ -539,7 +540,9 @@
     const count = state.cart.reduce((sum, line) => sum + line.quantity, 0);
     elements.cartCount.textContent = String(count);
     elements.cartTotal.textContent = formatCOP(cartTotal());
-    elements.checkoutButton.disabled = !state.cart.length;
+    const cartIsEmpty = !state.cart.length;
+    elements.checkoutButton.disabled = cartIsEmpty;
+    elements.emptyCartButton.disabled = cartIsEmpty;
   }
 
   function changeQuantity(index, delta) {
@@ -555,6 +558,15 @@
 
   function removeLine(index) {
     state.cart.splice(index, 1);
+    persistCart();
+    renderCart();
+  }
+
+  function emptyCart() {
+    if (!state.cart.length) return;
+    const confirmed = window.confirm('¿Deseas eliminar todos los productos del carrito?');
+    if (!confirmed) return;
+    state.cart = [];
     persistCart();
     renderCart();
   }
@@ -735,6 +747,7 @@
   elements.detailQtyInc.addEventListener('click', () => changeDetailQuantity(1));
   elements.detailAddButton.addEventListener('click', addSelectedProduct);
   elements.checkoutButton.addEventListener('click', openCheckout);
+  elements.emptyCartButton.addEventListener('click', emptyCart);
   elements.zoneType.addEventListener('change', () => setZone(elements.zoneType.value));
 
   elements.checkoutForm.addEventListener('submit', event => {
